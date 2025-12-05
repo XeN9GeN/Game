@@ -21,9 +21,6 @@ private:
 	int hp;
 	int armor;
 	int mana;
-	int energy=0;
-	int max_energy = 3;
-
 	Statuses status;
 
 	std::vector<std::shared_ptr<Card>> player_deck;
@@ -36,14 +33,11 @@ public:
 	int getHealth() const { return hp; }
 	int getArmor() const { return armor; }
 	int getMana() const { return mana; }
-	int getEnergy() const { return energy; }
-	int getMaxEnergy() const { return max_energy; }
 
 
 	void setHp(int h) { hp = h; }
 	void setArm(int arm) { armor = arm; }
 	void setMana(int m) { mana = m; }
-	void setMaxEnergy(int me) { max_energy = me; }
 
 
 	void getAttacked(int dmg);

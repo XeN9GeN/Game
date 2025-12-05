@@ -5,6 +5,8 @@
 #include "Character.h"
 #include "Enemy.h"
 
+Game::Game(Character& p, Enemy& e) : player(p), enemy(e){}
+
 void Enemy::playTurn(Character& player) {
     drawCard();
 
@@ -31,6 +33,19 @@ void Enemy::playTurn(Character& player) {
             setMana(currentMana - card->getManaCost());
         }
         hand.erase(hand.begin() + bestIndex);
+    }
+}
+
+
+void Game::logPlay(const std::string& entry) {
+    play_log.push_back(entry);
+}
+
+void Game::printPlayLog() const {
+    if (play_log.empty()) return;
+    std::cout << "[LOG] Played this turn:\n";
+    for (const auto& e : play_log) {
+        std::cout << " - " << e << "\n";
     }
 }
 

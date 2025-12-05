@@ -5,14 +5,18 @@
 
 class Game {
 private:
-    Character player;
-    Enemy enemy;
+    Character &player;
+    Enemy &enemy;
+    std::vector<std::string> play_log; // журнал сыгранных карт / действий
+
 public:
-	Game(Character p, Enemy e) : player(p), enemy(e) {}
-    Game();
+    Game(Character&p,Enemy&e);
     void playerTurn();
     void enemyTurn();
     void startBattle();
     void autoPlayerTurn();
+
+    void logPlay(const std::string& entry);
+    void printPlayLog() const;
 };
 

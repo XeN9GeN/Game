@@ -14,10 +14,32 @@ void Enemy::drawCard() {
     std::uniform_int_distribution<std::size_t> dist(0, enemy_deck.size() - 1);
     std::size_t ran_ind = dist(rng);
 
-    hand.push_back(enemy_deck[ran_ind]);
+    enemy_hand.push_back(enemy_deck[ran_ind]);
     enemy_deck.erase(enemy_deck.begin() + static_cast<std::ptrdiff_t>(ran_ind));
 }
 
 void Enemy::addCardToDeck(std::shared_ptr<Card> card) {
     enemy_deck.push_back(card);
+}
+
+
+void Enemy::playTurn(Character&player){
+    drawCard();
+
+    std::cout << "[ENEMY] " << name << " turn\n";
+
+    int currentMana = getMana();
+
+    if (enemy_hand.empty()) {
+        int base_dmg = 2;
+        std::cout << "[ENEMY] " << name << " performs basic attack for " << base_dmg << " dmg\n";
+        player.getAttacked(base_dmg);
+        return;
+    }
+
+    
+
+
+    
+
 }

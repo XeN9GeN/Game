@@ -67,7 +67,6 @@ void Character::showStatuses() const {
 
 
 void Character::startTurn() {
-	energy = max_energy;
 
     if (status.poison > 0) {
         hp -= status.poison;

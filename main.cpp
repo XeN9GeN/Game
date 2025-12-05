@@ -15,10 +15,14 @@ using namespace std;
 bool turn_over = false;
 int steps = 0;
 void printCaracterStatus(const Character& character, const string& name) {
-    std::cout << name << " - HP: " << character.getHealth() << ", Armor: " << character.getArmor() << ", Mana: " << character.getMana() << endl;
+	std::cout << "-------------------------\n";
+    std::cout << name << " - HP: " << character.getHealth() << ", Armor: " << character.getArmor() << ", Mana: " << character.getMana() << std::endl;
+    character.showStatuses();
 }
 void printEnemyStatus(const Enemy& enemy) {
-    std::cout << " - HP: " << enemy.getHealth() << ", Armor: " << enemy.getArmor() << ", Mana: " << enemy.getMana() << endl;
+    std::cout << "-------------------------\n";
+    std::cout << "Enemy - HP: " << enemy.getHealth() << ", Armor: " << enemy.getArmor() << ", Mana: " << enemy.getMana() << std::endl;
+    enemy.showStatuses();
 }
 static std::mt19937 make_rng() {
     static std::random_device rd;
@@ -45,18 +49,29 @@ void Game::autoPlayerTurn() {
             bestIndex = i;
         }
     }
+    play_log.clear();
+
     if (bestIndex != -1) {
         auto card = hand[bestIndex];
         std::cout << "[AUTO] Player uses card: " << card->getName() << "\n";
+        logPlay(card->getName());
         card->apply(player, enemy);
         player.setMana(currentMana - card->getManaCost());
         hand.erase(hand.begin() + bestIndex);
+        std::cout << "-------------------------\n";
+        printPlayLog();
         return;
     }
 
     int dmg = 2;
     enemy.getAttacked(dmg);
     std::cout << "[AUTO] Player attacks for " << dmg << " damage\n";
+    logPlay(std::string("Basic attack: ") + std::to_string(dmg) + " dmg");
+
+    std::cout << "-------------------------\n";
+    printPlayLog();
+    std::cout << "\n\n\n";
+  
 }
 
 
@@ -66,7 +81,6 @@ int main() {
     Character player(30, 5, 10); // HP, Armor, Mana
     Enemy enemy("Armored Goblin", 20, 10, 10);
     Game game(player, enemy);
-
     enemy.addCardToDeck(make_shared<Attack_card>("Slash", "Simple strike", 2, 3));
     enemy.addCardToDeck(make_shared<Attack_card>("Heavy Blow", "Hard hit", 4, 5));
     enemy.addCardToDeck(make_shared<Defense_card>("Shield", "Block", 2, 2));
@@ -98,12 +112,14 @@ int main() {
 
     drawCard(player);
     drawCard(player);
-
+    drawCard(player);
+    drawCard(player);
 
     std::cout << "Battle Start!" << endl;
 
     int turn = 1;
     while (player.getHealth() > 0 && enemy.getHealth() > 0) {
+        std::cout << "\n\n\n\n";
         std::cout << "\n--- Turn " << turn << " ---\n";
 
         player.setMana(turn);
@@ -111,6 +127,9 @@ int main() {
 
         game.autoPlayerTurn();  //автоматический ход игрока
         enemy.playTurn(player); //автоматический ход врага
+
+        printCaracterStatus(player, "Player");
+        printEnemyStatus(enemy);
 
         turn++;
     }
