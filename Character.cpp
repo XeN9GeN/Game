@@ -99,28 +99,3 @@ void Character::endTurn() {
 }
 
 
-void Character::showHand() const {
-    cout << "Player Hand:\n";
-    for (int i = 0; i < player_hand.size(); ++i) {
-        auto& card = player_hand[i];
-        if (card) {
-            cout << i + 1 << ". ";
-            card->printCard();
-        }
-    }
-}
-
-void Character::chooseCard() {
-
-    cout << "Enter card index: ";
-    int card_index;
-    cin >> card_index;
-
-    if (card_index >= 1 && card_index <= player_hand.size()) {
-        auto card = player_hand[card_index - 1];
-		card->apply(const_cast<Character&>(*this), const_cast<Character&>(*this));// Assuming self-targeting for simplicity
-        card->printCard();
-        cout << "Card used!\n";
-        player_hand.erase(player_hand.begin() + card_index - 1);
-    }
-}

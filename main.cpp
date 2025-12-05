@@ -74,30 +74,30 @@ int main() {
     enemy.addCardToDeck(make_shared<Buff_card>("Rage", "Random buff", 1));
     enemy.addCardToDeck(make_shared<Debuff_card>("Curse", "Random debuff", 1));
 
-    vector<shared_ptr<Card>> player_deck = {
-        make_shared<Attack_card>("Strike", "Basic attack", 2, 4),
-        make_shared<Defense_card>("Block", "Increase armor", 2, 3),
-        make_shared<Heal_card>("First Aid", "Restore health", 3, 5),
-        make_shared<Buff_card>("Inspiration", "Random buff", 1),
-        make_shared<Debuff_card>("Hex", "Random debuff", 1),
-        make_shared<Debuff_card>("Deadly Venom", "Applies poison", 1, StatusType::Poison, 4),
-        make_shared<Debuff_card>("Bleeding Strike", "Causes bleeding", 1, StatusType::Bleed, 3),
-        make_shared<Debuff_card>("Intimidate", "Weakens enemy", 1, StatusType::Weak, 2)
-    };
+    player.addCardToDeck(make_shared<Attack_card>("Strike", "Basic attack", 2, 4));
+    player.addCardToDeck(make_shared<Defense_card>("Block", "Increase armor", 2, 3));
+    player.addCardToDeck(make_shared<Heal_card>("First Aid", "Restore health", 3, 5));
+    player.addCardToDeck(make_shared<Buff_card>("Inspiration", "Random buff", 1));
+    player.addCardToDeck(make_shared<Debuff_card>("Hex", "Random debuff", 1));
+    player.addCardToDeck(make_shared<Debuff_card>("Deadly Venom", "Applies poison", 1, StatusType::Poison, 4));
+    player.addCardToDeck(make_shared<Debuff_card>("Bleeding Strike", "Causes bleeding", 1, StatusType::Bleed, 3));
+    player.addCardToDeck(make_shared<Debuff_card>("Intimidate", "Weakens enemy", 1, StatusType::Weak, 2));
 
-    auto drawCard = [&](vector<shared_ptr<Card>>& deck, vector<shared_ptr<Card>>& hand) {
+
+    auto drawCard = [&](Character& ch) {
+        auto& deck = ch.getDeck();
+        auto& hand = ch.getAllCards();
+
         if (!deck.empty()) {
-			std::uniform_int_distribution<size_t> dist(0, deck.size() - 1);// распределение для случайного индекса
+            std::uniform_int_distribution<size_t> dist(0, deck.size() - 1);
             size_t index = dist(rng);
-            player.addCard(deck[index]);
+            hand.push_back(deck[index]);
             deck.erase(deck.begin() + index);
         }
     };
 
-	//аргументы типа vector<shared_ptr<Card>>&, чтобы передать по ссылке и избежать копирования
-    //второй аргумент как ссылку на вектор карт игрока, например, через метод getAllCards() класса Character.
-    drawCard(player_deck, player.getAllCards());
-	drawCard(player_deck, player.getAllCards());
+    drawCard(player);
+    drawCard(player);
 
 
     std::cout << "Battle Start!" << endl;

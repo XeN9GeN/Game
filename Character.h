@@ -60,9 +60,9 @@ public:
 
 	std::vector<std::shared_ptr<Card>>& getAllCards() { return player_hand; }
 	void addCard(std::shared_ptr<Card>card) { player_hand.push_back(card); }
-	void showHand() const;
-	void chooseCard();
-	void playCard(int index, Character& target);
+	std::vector<std::shared_ptr<Card>>& getDeck() { return player_deck; }
+	void addCardToDeck(std::shared_ptr<Card> card) { player_deck.push_back(card); }
+
 
 
 	void startTurn();
