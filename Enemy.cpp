@@ -6,40 +6,57 @@
 #include <algorithm>
 
 Enemy::Enemy(std::string name, int health, int armor, int mana) : name(name), Character(health, armor, mana) {}
-
-void Enemy::drawCard() {
-    if (enemy_deck.empty()) return;
-
-    static std::mt19937 rng{ std::random_device{}() };
-    std::uniform_int_distribution<std::size_t> dist(0, enemy_deck.size() - 1);
-    std::size_t ran_ind = dist(rng);
-
-    enemy_hand.push_back(enemy_deck[ran_ind]);
-    enemy_deck.erase(enemy_deck.begin() + static_cast<std::ptrdiff_t>(ran_ind));
-}
-
-void Enemy::addCardToDeck(std::shared_ptr<Card> card) {
-    enemy_deck.push_back(card);
-}
-
-
-void Enemy::playTurn(Character&player){
+void Enemy::autoEnemyTurn(Character& player) {
     drawCard();
 
     std::cout << "[ENEMY] " << name << " turn\n";
 
     int currentMana = getMana();
+	auto& enemy_hand = getHand();
 
-    if (enemy_hand.empty()) {
+    if(enemy_hand.empty()) {
         int base_dmg = 2;
         std::cout << "[ENEMY] " << name << " performs basic attack for " << base_dmg << " dmg\n";
         player.getAttacked(base_dmg);
         return;
     }
 
-    
+    bool playedSmth = false;
+    while (true) {
+        int bestind = -1;
+        int bestcost = -1;
 
+        for (int i = 0; i < enemy_hand.size(); ++i) {
+            auto& c = enemy_hand[i];
+            if (!c) continue;
 
-    
+            int cost = c->getManaCost();
+            if (cost <= getMana() && cost > bestcost) {
+                bestcost = cost;
+                bestind = i;
+            }
+        }
+        if (bestind == -1) break;
 
+        auto card = enemy_hand[bestind];
+        std::cout << "[ENEMY] " << name << " uses: " << card->getName()
+            << " (cost " << card->getManaCost() << ")\n";
+
+        card->apply(*this, player); // self = enemy, target = player
+        currentMana -= card->getManaCost();
+        setMana(currentMana);
+
+        enemy_hand.erase(enemy_hand.begin() + bestind);
+        playedSmth = true;
+
+        if (player.getHealth() <= 0) break;
+    }
+
+    if (!playedSmth) {
+        int baseDmg = 2;
+        std::cout << "[ENEMY] " << name << " performs basic attack for " << baseDmg << " dmg\n";
+        player.getAttacked(baseDmg);
+    }
+
+   
 }

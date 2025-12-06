@@ -11,9 +11,7 @@ private:
 
 public:
     Game(Character&p,Enemy&e);
-    void playerTurn();
-    void enemyTurn();
-    void startBattle();
+    void PlayerTurn();
     void autoPlayerTurn();
 
     void logPlay(const std::string& entry);

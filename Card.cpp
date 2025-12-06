@@ -3,6 +3,7 @@
 #include "Character.h"
 #include <string>
 #include <random>
+#include "Statuses.h"
 
 
 void Attack_card::apply(Character& self, Character& target) {
@@ -54,33 +55,39 @@ void Buff_card::printCard() {
 
 void Debuff_card::apply(Character& self, Character& target) {
 	switch (statusType) {
+		//вывод эффекта дебаффа
 	case StatusType::Poison:
-		target.addPoison(value);
-		std::cout << "Applied Poison (" << value << ")\n";
+		target.getStatuses().addPoison(value,duration);
+		std::cout << "Applied Poison: Deals " << value
+			<< " true damage each turn." << duration << "\n";
 		break;
 
 	case StatusType::Bleed:
-		target.addBleed(value);
-		std::cout << "Applied Bleed (" << value << ")\n";
+		target.getStatuses().addBleed(value,duration);
+		std::cout << "Applied Bleed: Deals " << value
+			<< " damage each turn (reduced by armor)."<< duration <<"\n";
 		break;
 
 	case StatusType::Weak:
-		target.addWeak(value);
-		std::cout << "Applied Weak (" << value << " turns)\n";
+		target.getStatuses().addWeak(duration);
+		std::cout << "Applied Weak: Enemy deals 25% less damage "
+			<< "(duration: " << duration << " turns).\n";
 		break;
 
 	case StatusType::Vulnerable:
-		target.addVulnerable(value);
-		std::cout << "Applied Vulnerable (" << value << " turns)\n";
+		target.getStatuses().addVulnerable(duration);
+		std::cout << "Applied Vulnerable: Enemy receives 50% more damage "
+			<< "(duration: " << duration << " turns).\n";
 		break;
 
 	case StatusType::Fragile:
-		target.addFragile(value);
-		std::cout << "Applied Fragile (" << value << " turns)\n";
+		target.getStatuses().addFragile(duration);
+		std::cout << "Applied Fragile: Armor works at half efficiency "
+			<< "(duration: " << duration << " turns).\n";
 		break;
 	}
 }
-void Debuff_card::printCard() {
+void Debuff_card::printCard() {// вывод информации о дебафф карты(в руке)
 	std::cout << "[Debuff][" << name << "][" << effect_d << "][Cost:" << mana_cost << "] ";
 
 	switch (statusType) {
