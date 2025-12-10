@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 #include "Character.h"
 #include "Enemy.h"
 

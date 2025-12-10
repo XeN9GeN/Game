@@ -1,9 +1,8 @@
 #include "Enemy.h"
-#include "Character.h"
-#include <string>
 #include "Card.h"
-#include <random>
+#include <iostream>
 #include <algorithm>
+
 
 Enemy::Enemy(std::string name, int health, int armor, int mana) : name(name), Character(health, armor, mana) {}
 void Enemy::autoEnemyTurn(Character& player) {

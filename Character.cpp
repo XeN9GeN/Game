@@ -1,14 +1,6 @@
 #include "Character.h"
-#include "Card.h"
-#include <iostream>
-#include <memory>
-#include <vector>
-#include <thread>
-#include <chrono>
-#include <random>
-#include <ctime>
-#include "Enemy.h"
-#include "Statuses.h"
+#include <iostream>   // для cout
+#include <random>  
 
 static std::mt19937 make_rng() {
     static std::random_device rd;
@@ -53,7 +45,7 @@ void Character::startTurn() {
 
     if (status.getPoison() > 0) {
         hp -= status.getPoison();
-        cout << "Poison deals " << status.getPoison() << " damage!\n";
+        std::cout << "Poison deals " << status.getPoison() << " damage!\n";
 		if (hp < 0) hp = 0;
     }
 
@@ -68,17 +60,11 @@ void Character::startTurn() {
         hp -= dmg_after_armor;
 		if (hp < 0) hp = 0;
 
-		cout << "Bleed deals " << dmg_after_armor << " damage after armor!\n";
+		std::cout << "Bleed deals " << dmg_after_armor << " damage after armor!\n";
     }
 
 }
 
-
-void printCaracterStatus(const Character& character, const std::string& name) {
-    std::cout << "-------------------------\n";
-    std::cout << name << " - HP: " << character.getHealth() << ", Armor: " << character.getArmor() << ", Mana: " << character.getMana() << std::endl;
-	character.getStatuses().showStatuses();// char->getStatuses() - возврат ссылки на объект статусов -> status.showStatuses() - вывод статусов
-}
 void Character::drawCard() {
     if (player_deck.empty()) return;
     static std::mt19937 rng(std::random_device{}());

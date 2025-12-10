@@ -1,14 +1,8 @@
 #pragma once
-#include "Statuses.h"
-#include <iostream>
+#include "Statuses.h"      // требуется: тип Statuses доступен
 #include <memory>
 #include <vector>
-#include <thread>
-#include <chrono>
-#include <random>
-#include <ctime>
 #include <string>
-#include "Card.h"
 
 class Card;
 
@@ -48,8 +42,13 @@ public:
 	void drawCard();
 
 	void startTurn();
+	void printCharacterStatus(const Character& character, const std::string& name)
+	{
+		std::cout << "-------------------------\n";
+		std::cout << name << " - HP: " << character.getHealth() << ", Armor: " << character.getArmor() << ", Mana: " << character.getMana() << std::endl;
+		character.getStatuses().showStatuses();// char->getStatuses() - возврат ссылки на объект статусов -> status.showStatuses() - вывод статусов
+	}
 
 	Statuses& getStatuses() { return status; }//возврат ссылки на объект статусов
 	const Statuses& getStatuses() const { return status; }
 };
-

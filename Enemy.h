@@ -1,9 +1,6 @@
 #pragma once
-#include <vector>
-#include <memory>
 #include "Character.h"
 #include <string>
-#include "Statuses.h"
 
 class Card;
 

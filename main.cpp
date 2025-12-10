@@ -13,36 +13,33 @@
 
 using namespace std;
 
+
 int main() {
+
     Character player(30, 5, 10); // HP, Armor, Mana
     Enemy enemy("Armored Goblin", 20, 10, 10);
     Game game(player, enemy);
 
-
     enemy.addCardToDeck(make_shared<Attack_card>("Slash", "Simple strike", 2, 3));
     enemy.addCardToDeck(make_shared<Attack_card>("Heavy Blow", "Hard hit", 4, 5));
-
     enemy.addCardToDeck(make_shared<Defense_card>("Shield", "Block", 2, 2));
     enemy.addCardToDeck(make_shared<Heal_card>("Bandage", "Heal small", 3, 3));
-
     enemy.addCardToDeck(make_shared<Debuff_card>("Deadly Venom", "Applies poison", 3, StatusType::Poison, 5, 1));
     enemy.addCardToDeck(make_shared<Debuff_card>("Razor Cut", "Causes bleeding", 2, StatusType::Bleed, 3, 2));
-    enemy.addCardToDeck(make_shared<Debuff_card>("Crippling Fear", "Weakens enemy", 1, StatusType::Weak, 2, 2));
+    enemy.addCardToDeck(make_shared<Debuff_card>("Crippling Fear", "Weakens enemy", 1, StatusType::Weak, 1, 3));
     enemy.addCardToDeck(make_shared<Debuff_card>("Expose Armor", "Makes the enemy prone to incoming damage.", 2, StatusType::Vulnerable, 1, 2));
     enemy.addCardToDeck(make_shared<Debuff_card>("Shatter Shield", "Reduces enemy armor effectiveness.", 2, StatusType::Fragile, 1, 2));
 
 
-
     player.addCardToDeck(make_shared<Attack_card>("Strike", "Basic attack", 2, 4));
     player.addCardToDeck(make_shared<Defense_card>("Block", "Increase armor", 2, 3));
-
     player.addCardToDeck(make_shared<Heal_card>("First Aid", "Restore health", 3, 5));
-
-    player.addCardToDeck(make_shared<Debuff_card>("Deadly Venom", "Applies poison", 3, StatusType::Poison, 5, 1));
+    player.addCardToDeck(make_shared<Debuff_card>("Deadly Venom", "Applies poison", 3, StatusType::Poison, 5, 1));//3 -cost 5-dmg 1-turn
     player.addCardToDeck(make_shared<Debuff_card>("Razor Cut", "Causes bleeding", 2, StatusType::Bleed, 3, 2));
-    player.addCardToDeck(make_shared<Debuff_card>("Crippling Fear", "Weakens enemy", 1, StatusType::Weak, 2,2));
+    player.addCardToDeck(make_shared<Debuff_card>("Crippling Fear", "Weakens enemy", 1, StatusType::Weak, 1,3));
     player.addCardToDeck(make_shared<Debuff_card>("Expose Armor",  "Makes the enemy prone to incoming damage.", 2, StatusType::Vulnerable, 1, 2));
 	player.addCardToDeck(make_shared<Debuff_card>("Shatter Shield", "Reduces enemy armor effectiveness.", 2, StatusType::Fragile, 1, 2));
+
 
     player.drawCard();
     player.drawCard();
@@ -79,6 +76,9 @@ int main() {
         std::cout << "\n\n\n\n";
         std::cout << "\n--- Turn " << turn << " ---\n";
 
+        player.printCharacterStatus(player, "Player");
+		enemy.printCharacterStatus(enemy, "Enemy");
+
         player.setMana(turn);
         enemy.setMana(turn);
 
@@ -90,6 +90,12 @@ int main() {
         }
         enemy.autoEnemyTurn(player);    // враг ВСЕГДА ходит автоматически
 
+		player.getStatuses().updateStatuses();
+		enemy.getStatuses().updateStatuses();
+
+        
+        player.printCharacterStatus(player, "Player");
+        enemy.printCharacterStatus(enemy, "Enemy");
         turn++;
     }
 }

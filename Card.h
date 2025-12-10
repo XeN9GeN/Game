@@ -1,8 +1,6 @@
 #pragma once
 #include <string>
 #include <iostream>
-using namespace std;
-
 
 class Character;
 
@@ -26,11 +24,11 @@ enum class StatusType {
 class Card
 {
 protected: 
-	string name;
-	string effect_d;
+	std::string name;
+	std::string effect_d;
 	int mana_cost;
 	CardType type;
-	Card(string n, string e_d, int m_c, CardType t) : name(n), effect_d(e_d), mana_cost(m_c), type(t) {}
+	Card(std::string n, std::string e_d, int m_c, CardType t) : name(n), effect_d(e_d), mana_cost(m_c), type(t) {}
 
 public:
 
@@ -38,8 +36,8 @@ public:
 	virtual void apply(Character& self, Character& target) = 0;
 	virtual void printCard() = 0;
 
-	const string& getName() const { return name; }
-	const string& getEffectDescription() const { return effect_d; }
+	const std::string& getName() const { return name; }
+	const std::string& getEffectDescription() const { return effect_d; }
 	int getManaCost() const { return mana_cost; }
 	CardType getType() const { return type; }
 };
@@ -50,7 +48,7 @@ class Attack_card : public Card {
 	int dmg;
 public:
 	//вызов конструктора с параметром type_value для урона базового класса Card
-	Attack_card(string n, string e_d, int m_c, int type_value) : Card(n, e_d, m_c, CardType::Attack), dmg(type_value) {}
+	Attack_card(std::string n, std::string e_d, int m_c, int type_value) : Card(n, e_d, m_c, CardType::Attack), dmg(type_value) {}
 	void apply(Character& self, Character& target) override; //переопределение виртуальной функции(применение эффекта карты)
 	void printCard() override;
 };
@@ -59,7 +57,7 @@ public:
 class Defense_card : public Card {
 	int armor;
 public:
-	Defense_card(string n, string e_d, int m_c, int type_value) : Card(n, e_d, m_c, CardType::Defense), armor(type_value) {}
+	Defense_card(std::string n, std::string e_d, int m_c, int type_value) : Card(n, e_d, m_c, CardType::Defense), armor(type_value) {}
 	void apply(Character& self, Character& target) override;
 	void printCard() override;
 };
@@ -68,7 +66,7 @@ public:
 class Heal_card : public Card {
 	int heal_amount;
 public:
-	Heal_card(string n, string e_d, int m_c, int type_value) : Card(n, e_d, m_c, CardType::Heal), heal_amount(type_value) {}
+	Heal_card(std::string n, std::string e_d, int m_c, int type_value) : Card(n, e_d, m_c, CardType::Heal), heal_amount(type_value) {}
 	void apply(Character& self, Character& target) override;
 	void printCard() override;
 };
@@ -77,7 +75,7 @@ public:
 class Buff_card : public Card {
 	// Buff specific attributes
 public:
-	Buff_card(string n, string e_d, int m_c) : Card(n, e_d, m_c, CardType::Buff) {}
+	Buff_card(std::string n, std::string e_d, int m_c) : Card(n, e_d, m_c, CardType::Buff) {}
 	void apply(Character& self, Character& target) override;
 	void printCard() override;
 };
@@ -88,8 +86,7 @@ class Debuff_card : public Card {
 	int value; // сила статуса (например, урон от яда, кровотечения)
 	int duration; // продолжительность эффекта (для статусов типа Weak, Vulnerable, Fragile)
 public:
-	// Добавлены значения по умолчанию, чтобы можно было вызывать и с 3 аргументами
-	Debuff_card(string n, string e_d, int m_c,
+	Debuff_card(std::string n, std::string e_d, int m_c,
 		StatusType st, int val, int dur)
 		: Card(n, e_d, m_c, CardType::Debuff),
 		statusType(st), value(val), duration(dur) {

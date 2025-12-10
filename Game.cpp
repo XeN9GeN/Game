@@ -1,11 +1,9 @@
 #include "Game.h"
 #include <iostream>
-#include <memory>
 #include "Card.h"
-#include "Character.h"
-#include "Enemy.h"
+#include <memory>
 #include <string>
-#include "Statuses.h"
+
 Game::Game(Character& p, Enemy& e) : player(p), enemy(e){}
 
 
@@ -104,14 +102,14 @@ void Game::autoPlayerTurn() {
     std::cout << "[AUTO] Player turn...\n";
 
     int currentMana = player.getMana();
-    auto& enemy_hand = player.getHand();
+    auto& hand = player.getHand();
 
     int bestIndex = -1;
     int bestCost = -1;
 
     // найти лучшую карту в руке
-    for (int i = 0; i < enemy_hand.size(); ++i) {
-        auto& c = enemy_hand[i];
+    for (int i = 0; i < hand.size(); ++i) {
+        auto& c = hand[i];
         if (!c) continue;
         int cost = c->getManaCost();
         if (cost <= currentMana && cost > bestCost) {
@@ -122,12 +120,12 @@ void Game::autoPlayerTurn() {
     play_log.clear();
 
     if (bestIndex != -1) {
-        auto card = enemy_hand[bestIndex];
+        auto card = hand[bestIndex];
         std::cout << "[AUTO] Player uses card: " << card->getName() << "\n";
         logPlay(card->getName());
         card->apply(player, enemy);
         player.setMana(currentMana - card->getManaCost());
-        enemy_hand.erase(enemy_hand.begin() + bestIndex);
+        hand.erase(hand.begin() + bestIndex);
         std::cout << "-------------------------\n";
         printPlayLog();
         return;

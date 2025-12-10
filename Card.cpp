@@ -1,9 +1,9 @@
 #include "Card.h"
-#include <iostream>
 #include "Character.h"
-#include <string>
-#include <random>
 #include "Statuses.h"
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
 
 
 void Attack_card::apply(Character& self, Character& target) {
@@ -59,13 +59,14 @@ void Debuff_card::apply(Character& self, Character& target) {
 	case StatusType::Poison:
 		target.getStatuses().addPoison(value,duration);
 		std::cout << "Applied Poison: Deals " << value
-			<< " true damage each turn." << duration << "\n";
+			<< " true damage each turn for " << duration << " turns.\n";
+
 		break;
 
 	case StatusType::Bleed:
 		target.getStatuses().addBleed(value,duration);
 		std::cout << "Applied Bleed: Deals " << value
-			<< " damage each turn (reduced by armor)."<< duration <<"\n";
+			<< " damage each turn for"<< duration <<"turns.\n";
 		break;
 
 	case StatusType::Weak:
