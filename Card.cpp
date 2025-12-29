@@ -1,4 +1,4 @@
-#include "Card.h"
+п»ї#include "Card.h"
 #include "Character.h"
 #include "Statuses.h"
 #include <iostream>
@@ -6,13 +6,17 @@
 #include <cstdlib>
 
 
+using namespace std;
+
+
+
 void Attack_card::apply(Character& self, Character& target) {
 	target.getAttacked(dmg);
 };
 void Attack_card::printCard() {
-	std::cout << "[Attack][" << name << "]["
-		<< effect_d << "][Cost:" << mana_cost
-		<< "][DMG:" << dmg << "]\n";
+	std::cout << Color::CARD_ATTACK << "[Attack][" << name << "]["
+		<< effect_d << "][Cost:" << Color::BLUE << mana_cost << Color::CARD_ATTACK
+		<< "][DMG:" << Color::RED << dmg << Color::CARD_ATTACK << "]" << Color::RESET << "\n";
 };
 
 
@@ -20,7 +24,9 @@ void Defense_card::apply(Character& self, Character& target) {
 	self.setArm(self.getArmor() + armor);
 };
 void Defense_card::printCard() {
-	std::cout << "[Defense][" << name << "][" << effect_d << "][Cost:" << mana_cost << "][ARMOR:" << armor << "]\n";
+	std::cout << Color::CARD_DEFENSE << "[Defense][" << name << "][" << effect_d
+		<< "][Cost:" << Color::BLUE << mana_cost << Color::CARD_DEFENSE
+		<< "][ARMOR:" << Color::YELLOW << armor << Color::CARD_DEFENSE << "]" << Color::RESET << "\n";
 };
 
 
@@ -28,77 +34,117 @@ void Heal_card::apply(Character& self, Character& target) {
 	self.setHp(self.getHealth() + heal_amount);
 };
 void Heal_card::printCard() {
-	std::cout << "[Heal][" << name << "][" << effect_d << "][Cost:" << mana_cost << "][HEAL:" << heal_amount << "]\n";
+	std::cout << Color::GREEN << "[Heal][" << name << "][" << effect_d
+		<< "][Cost:" << Color::BLUE << mana_cost << Color::GREEN
+		<< "][HEAL:" << heal_amount << "]" << Color::RESET << "\n";
 };
 
 
-void Buff_card::apply(Character& self, Character& target) {
-	switch (rand() % 3) {
-	case 0:
-		self.setArm(self.getArmor() + 1);
-		printf("Buff applied: +1 Armor\n");
-		break;
-	case 1:
-		self.setHp(self.getHealth() + 1);
-		printf("Buff applied: +1 Health\n");
-		break;
-	case 2:
-		self.setMana(self.getMana() + 1);
-		printf("Buff applied: +1 Mana\n");
-		break;
-	}
+
+
+
+
+
+void Strength_card::printCard() {
+	std::cout << Color::CARD_BUFF << "[Buff][" << name << "]["
+		<< effect_d << "][Cost:" << Color::BLUE << mana_cost << Color::CARD_BUFF << "]" << Color::RESET << "\n";
 };
-void Buff_card::printCard() {
-	std::cout << "[Buff][" << name << "][" << effect_d << "][Cost:" << mana_cost << "]\n";
+void Strength_card::apply(Character& self, Character& target) {
+	self.getStatuses().addStrength(duration);
+	std::cout << Color::GREEN << "Applied Strength: " << Color::RESET
+		<< "Increases damage by 50% for " << duration << " turns.\n";
+}
+
+void Regeneration_card::printCard() {
+	std::cout << Color::CARD_BUFF << "[Buff][" << name << "]["
+		<< effect_d << "][Cost:" << Color::BLUE << mana_cost << Color::CARD_BUFF << "] "
+		<< Color::GREEN << "(Heal " << value << " dmg)" << Color::RESET << "\n";
 };
+void Regeneration_card::apply(Character& self, Character& target) {
+	self.getStatuses().addRegeneration(value, duration);
+	std::cout << Color::GREEN << "Applied Regeneration: " << Color::RESET
+		<< "Heals " << Color::GREEN << value << Color::RESET
+		<< " health each turn for " << duration << " turns.\n";
+}
+
+void Haste_card::printCard() {
+	std::cout << Color::CARD_BUFF << "[Buff][" << name << "]["
+		<< effect_d << "][Cost:" << Color::BLUE << mana_cost << Color::CARD_BUFF << "]" << Color::RESET << "\n";
+};
+void Haste_card::apply(Character& self, Character& target) {
+	self.getStatuses().addHaste(duration);
+	std::cout << Color::BLUE << "Applied Haste: " << Color::RESET
+		<< "Reduces mana cost of all cards by 2 for " << duration << " turns.\n";
+}
+
+void Dexterity_card::printCard() {
+	std::cout << Color::CARD_BUFF << "[Buff][" << name << "]["
+		<< effect_d << "][Cost:" << Color::BLUE << mana_cost << Color::CARD_BUFF << "]" << Color::RESET << "\n";
+};
+void Dexterity_card::apply(Character& self, Character& target) {
+	self.getStatuses().addDexterity(duration);
+	std::cout << Color::CYAN << "Applied Dexterity: " << Color::RESET
+		<< "Increases evasion by 20% for " << duration << " turns.\n";
+}
 
 
-void Debuff_card::apply(Character& self, Character& target) {
-	switch (statusType) {
-		//вывод эффекта дебаффа
-	case StatusType::Poison:
-		target.getStatuses().addPoison(value,duration);
-		std::cout << "Applied Poison: Deals " << value
-			<< " true damage each turn for " << duration << " turns.\n";
 
-		break;
 
-	case StatusType::Bleed:
-		target.getStatuses().addBleed(value,duration);
-		std::cout << "Applied Bleed: Deals " << value
-			<< " damage each turn for"<< duration <<"turns.\n";
-		break;
 
-	case StatusType::Weak:
+
+
+void Poison_card::apply(Character& self, Character& target) {
+	target.getStatuses().addPoison(value, duration);
+	std::cout << Color::PURPLE << "Applied Poison: " << Color::RESET
+		<< "Deals " << Color::GREEN << value << Color::RESET
+		<< " true damage each turn for " << duration << " turns.\n";
+}
+void Poison_card::printCard() {
+	std::cout << Color::CARD_DEBUFF << "[Debuff][" << name << "]["
+		<< effect_d << "][Cost:" << Color::BLUE << mana_cost << Color::CARD_DEBUFF << "] "
+		<< Color::PURPLE << "(Poison " << value << " dmg)" << Color::RESET << "\n";
+}
+
+void Bleed_card::apply(Character& self, Character& target) {
+	target.getStatuses().addBleed(value, duration);
+	std::cout << Color::RED << "Applied Bleed: " << Color::RESET << "Deals " << Color::GREEN << value << Color::RESET
+		<< " damage each turn for " << duration << " turns.\n";
+}
+void Bleed_card::printCard() {
+	std::cout << Color::CARD_DEBUFF << "[Debuff][" << name << "]["
+	<< effect_d << "][Cost:" << Color::BLUE << mana_cost << Color::CARD_DEBUFF << "] "
+		<< Color::PURPLE << "(Poison " << value << " dmg)" << Color::RESET << "\n";
+}
+
+void  Weak_card::apply(Character& self, Character& target)  {
 		target.getStatuses().addWeak(duration);
-		std::cout << "Applied Weak: Enemy deals 25% less damage "
+		std::cout << Color::YELLOW << "Applied Weak: " << Color::RESET << "Enemy deals 25% less damage "
 			<< "(duration: " << duration << " turns).\n";
-		break;
+	}
+void Weak_card::printCard() {
+		std::cout << Color::CARD_DEBUFF << "[Debuff][" << name << "]["
+			<< effect_d << "][Cost:" << Color::BLUE << mana_cost << Color::CARD_DEBUFF << "] "
+			<< Color::PURPLE << "(Weak " << duration << " turns)" << Color::RESET << "\n";
+	}
 
-	case StatusType::Vulnerable:
+void Vulnerable_card::apply(Character& self, Character& target)  {
 		target.getStatuses().addVulnerable(duration);
-		std::cout << "Applied Vulnerable: Enemy receives 50% more damage "
+		std::cout << Color::RED << "Applied Vulnerable: " << Color::RESET << "Enemy receives 50% more damage "
 			<< "(duration: " << duration << " turns).\n";
-		break;
+	}
+void Vulnerable_card::printCard() {
+	std::cout << Color::CARD_DEBUFF << "[Debuff][" << name << "]["
+		<< effect_d << "][Cost:" << Color::BLUE << mana_cost << Color::CARD_DEBUFF << "] "
+		<< Color::PURPLE << "(Vulnerable " << duration << " turns)" << Color::RESET << "\n";
+	}
 
-	case StatusType::Fragile:
+void Fragile_card::apply(Character& self, Character& target) {
 		target.getStatuses().addFragile(duration);
-		std::cout << "Applied Fragile: Armor works at half efficiency "
+		std::cout << Color::YELLOW << "Applied Fragile: " << Color::RESET << "Armor works at half efficiency "
 			<< "(duration: " << duration << " turns).\n";
-		break;
 	}
+void Fragile_card::printCard() {
+	std::cout << Color::CARD_DEBUFF << "[Debuff][" << name << "]["
+		<< effect_d << "][Cost:" << Color::BLUE << mana_cost << Color::CARD_DEBUFF << "] "
+		<< Color::PURPLE << "(Fragile " << duration << " turns)" << Color::RESET << "\n";
 }
-void Debuff_card::printCard() {// вывод информации о дебафф карты(в руке)
-	std::cout << "[Debuff][" << name << "][" << effect_d << "][Cost:" << mana_cost << "] ";
-
-	switch (statusType) {
-	case StatusType::Poison:     cout << "(Poison " << value << ")"; break;
-	case StatusType::Bleed:      cout << "(Bleed " << value << ")"; break;
-	case StatusType::Weak:       cout << "(Weak " << value << ")"; break;
-	case StatusType::Vulnerable: cout << "(Vulnerable " << value << ")"; break;
-	case StatusType::Fragile:    cout << "(Fragile " << value << ")"; break;
-	}
-
-	cout << "\n";
-}
-

@@ -1,5 +1,5 @@
 #pragma once
-#include "Statuses.h"      // требуется: тип Statuses доступен
+#include "Statuses.h"
 #include <memory>
 #include <vector>
 #include <string>
@@ -25,11 +25,43 @@ public:
 	int getHealth() const { return hp; }
 	int getArmor() const { return armor; }
 	int getMana() const { return mana; }
+	
 
-
-	void setHp(int h) { hp = h; }
-	void setArm(int arm) { armor = arm; }
-	void setMana(int m) { mana = m; }
+	void setHp(int h) { 
+		//РџСЂРѕРІРµСЂРєР° РЅР° РјР°РєСЃ hp
+		if (h > 30) {
+			h = 30;
+			std::cout << Color::BLUE << "Health capped at maximum (" << 30 << ")" << Color::RESET << "\n";
+			return;
+		}
+		else {
+			hp = h;
+		}
+	}
+	void setArm(int arm) {
+		//РџСЂРѕРІРµСЂРєР° РЅР° - Р°СЂРјРѕСЂ
+		if (arm < 0) {
+			armor = 0;
+			std::cout << Color::YELLOW << "Armor cannot be negative! Set to 0." << Color::RESET << "\n";
+			return;
+		}
+		else {
+			armor = arm;
+		}
+	
+	}
+	void setMana(int m) {
+		//РџСЂРѕРІРµСЂРєР° РЅР° - РјР°РЅСѓ
+		if (m < 0) {
+			mana = 0;
+			std::cout << Color::BLUE << "Mana cannot be negative! Set to 0." << Color::RESET << "\n";
+			return;
+		}
+		else {
+			mana = m;
+		}
+	}
+	int getEffectiveCardCost(const Card& card) const;
 
 
 	void getAttacked(int dmg);
@@ -38,17 +70,20 @@ public:
 
 	std::vector<std::shared_ptr<Card>>& getHand() { return player_hand; }
 	std::vector<std::shared_ptr<Card>>& getDeck() { return player_deck; }
+	const std::vector<std::shared_ptr<Card>>& getHand() const { return player_hand; }
+	const std::vector<std::shared_ptr<Card>>& getDeck() const { return player_deck; }
+	
 	void addCardToDeck(std::shared_ptr<Card> card) { player_deck.push_back(card); }
 	void drawCard();
 
-	void startTurn();
+	void takesPeriodDmgAtStartTurn();
 	void printCharacterStatus(const Character& character, const std::string& name)
 	{
 		std::cout << "-------------------------\n";
 		std::cout << name << " - HP: " << character.getHealth() << ", Armor: " << character.getArmor() << ", Mana: " << character.getMana() << std::endl;
-		character.getStatuses().showStatuses();// char->getStatuses() - возврат ссылки на объект статусов -> status.showStatuses() - вывод статусов
+		character.getStatuses().showStatuses();// РІС‹РІРѕРґ Р°РєС‚РёРІРЅС‹С… СЃС‚Р°С‚СѓСЃРѕРІ РїРµСЂСЃРѕРЅР°Р¶Р°
 	}
 
-	Statuses& getStatuses() { return status; }//возврат ссылки на объект статусов
+	Statuses& getStatuses() { return status; } // РІРѕР·РІСЂР°С‰Р°РµС‚ СЃСЃС‹Р»РєСѓ РЅР° СЃС‚Р°С‚СѓСЃС‹ РїРµСЂСЃРѕРЅР°Р¶Р°
 	const Statuses& getStatuses() const { return status; }
 };

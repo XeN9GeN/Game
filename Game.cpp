@@ -3,8 +3,9 @@
 #include "Card.h"
 #include <memory>
 #include <string>
+#include "Colors.h"
 
-Game::Game(Character& p, Enemy& e) : player(p), enemy(e){}
+Game::Game(Character& p, Enemy& e) : player(p), enemy(e) {}
 
 
 void Game::logPlay(const std::string& entry) {
@@ -13,93 +14,128 @@ void Game::logPlay(const std::string& entry) {
 
 void Game::printPlayLog() const {
     if (play_log.empty()) return;
-    std::cout << "[LOG] Played this turn:\n";
+    std::cout << Color::CYAN << "[LOG] Played this turn:" << Color::RESET << "\n";
     for (const auto& e : play_log) {
-        std::cout << " - " << e << "\n";
+        std::cout << Color::DARK_GRAY << " - " << Color::RESET << e << "\n";
     }
 }
 
 
 void Game::PlayerTurn() {
-        std::cout << "Player turn...\n";
-        
+    std::cout << Color::CYAN << "\n--- Player turn..." << Color::RESET << "\n";
+    
 
-		auto& hand = player.getHand();
-		int currentMana = player.getMana();
-        
-        if (hand.empty()) { std::cout << "Hand is empty"; }
-        
-        while (true) {
-            std::cout << "-------------------------\n";
-            std::cout << "Mana: " << currentMana << "\n";
-            std::cout << "Hand:\n";
+    auto& hand = player.getHand();
+    auto& Deck = player.getDeck();
+    int currentMana = player.getMana();
 
-            for (int i = 0; i < hand.size(); ++i) {
-                if (hand[i]) {
-                    std::cout << " [" << i << "] ";
-                    hand[i]->printCard();//‚˚‚Ó‰ Í‡Ú ‚ ÛÍÂ(ÏÂÚÓ‰ ÍÎ‡ÒÒ‡ Card)
-                }
-                else {
-                    std::cout << " [" << i << "] <empty>\n";
-                }
-            }
+    if (hand.empty()) {
+        std::cout << Color::YELLOW << "Hand is empty" << Color::RESET;
+    }
 
-            std::cout << "\nChoose action:\n";
-            std::cout << " p <index>  - Play card with index\n";
-			std::cout << " r           - Draw card\n";
-            std::cout << " a          - Basic attack\n";
-            std::cout << " e          - End turn\n";
-            std::cout << "> ";
+    while (true) {
+        std::cout << "\n\n";
+        std::cout << Color::BLUE << "Mana: " << Color::RESET << currentMana << "\n";
+        std::cout << Color::WHITE << "Hand:" << Color::RESET << "\n";
 
-            std::string cmd;
-            std::cin >> cmd;
-            if(cmd=="p"){
-                int indx;
-				std::cin >> indx;
-                auto card = hand[indx];
-                int cost = card->getManaCost();
-                if (cost > currentMana) { std::cout << "Not Enough Mana!!!"; continue; }
-
-
-                std::cout << "Player use card: " << card->getName() <<"\n";
-                logPlay(card->getName());
-                card->apply(player, enemy);//œ≈–≈œ–Œ¬≈–»“‹ ƒÀﬂ “»œ¿ BUFF
-                currentMana -= cost;
-                player.setMana(currentMana);
-                hand.erase(hand.begin() + indx);
-       
-                std::cout << "-------------------------\n";
-                printPlayLog();
-            }
-            else if (cmd == "r") {
-                player.drawCard();
-				std::cout << "Player draws a card.\n";
-            }
-            else if (cmd == "a") {
-                int dmg = 2;
-                enemy.getAttacked(dmg);
-                std::cout << "»„ÓÍ Ì‡ÌÓÒËÚ ·‡ÁÓ‚Û˛ ‡Ú‡ÍÛ: " << dmg << " ÛÓÌ‡\n";
-                logPlay(std::string("Basic attack: ") + std::to_string(dmg) + " dmg");
-
-                std::cout << "-------------------------\n";
-                printPlayLog();
-
-                // œÓÒÎÂ ‡Ú‡ÍË Ò˜ËÚ‡ÂÏ ıÓ‰ Á‡‚Â¯∏ÌÌ˚Ï ó ‚˚ıÓ‰ËÏ ËÁ ˆËÍÎ‡
-                break;
-            }
-
-            else if (cmd == "e") {
-                // «‡‚Â¯ËÚ¸ ıÓ‰ ·ÂÁ ‰ÓÔÓÎÌËÚÂÎ¸Ì˚ı ‰ÂÈÒÚ‚ËÈ
-                break;
+        for (int i = 0; i < hand.size(); ++i) {
+            if (hand[i]) {
+                std::cout << Color::CYAN << " [" << i << "] " << Color::RESET;
+                hand[i]->printCard(); // –≤—ã–≤–æ–¥ –∏–Ω—Ñ–æ –æ –∫–∞—Ä—Ç–µ (–º–µ—Ç–æ–¥ –±–∞–∑–æ–≤–æ–≥–æ Card)
             }
             else {
-                std::cout << "ÕÂËÁ‚ÂÒÚÌ‡ˇ ÍÓÏ‡Ì‰‡.\n";
+                std::cout << Color::DARK_GRAY << " [" << i << "] <empty>\n" << Color::RESET;
             }
-            std::cout << "\n";
         }
+
+        std::cout << Color::CYAN << "\nChoose action:" << Color::RESET << "\n";
+        std::cout << Color::GREEN << " p <index>" << Color::RESET << "  - Play card with index\n";
+        std::cout << Color::BLUE << " r" << Color::RESET << "           - Draw card\n";
+        std::cout << Color::RED << " a" << Color::RESET << "          - Basic attack\n";
+        std::cout << Color::DARK_GRAY << " e" << Color::RESET << "          - End turn\n";
+        std::cout << Color::WHITE << "> " << Color::RESET;
+
+        std::string cmd;
+        std::cin >> cmd;
+
+        // –ü—Ä–æ–≤–µ—Ä–∫–∞ 0: –ö–æ—Ä—Ä–µ–∫—Ç–Ω–æ—Å—Ç—å –∫–æ–º–∞–Ω–¥—ã
+        if (cmd != "p" && cmd != "r" && cmd != "a" && cmd != "e") {
+            std::cout << "Invalid syntax" << "\n";
+            continue;
+        }
+
+        if (cmd == "p") {
+            int indx;
+            std::cin >> indx;
+            auto card = hand[indx];
+
+            // –ü—Ä–æ–≤–µ—Ä–∫–∞ 1: –ö–æ—Ä—Ä–µ–∫—Ç–Ω–æ—Å—Ç—å –∏–Ω–¥–µ–∫—Å–∞
+            if (indx < 0 || indx >= hand.size()) {
+                std::cout << Color::RED << "Invalid card index!" << Color::RESET << "\n";
+                continue;
+            }
+
+            // –ü—Ä–æ–≤–µ—Ä–∫–∞ 2: –ö–∞—Ä—Ç–∞ —Å—É—â–µ—Å—Ç–≤—É–µ—Ç
+            if (!card) {
+                std::cout << Color::RED << "No card at this position!" << Color::RESET << "\n";
+                continue;
+            }
+
+            int cost = player.getEffectiveCardCost(*card);
+
+            // –ü—Ä–æ–≤–µ—Ä–∫–∞ 3: –•–≤–∞—Ç–∞–µ—Ç –ª–∏ –º–∞–Ω—ã
+            if (cost > currentMana) {
+                std::cout << Color::RED << "Not Enough Mana!!!" << Color::RESET;
+                continue;
+            }
+
+
+            std::cout << Color::GREEN << "Player use card: " << card->getName() << Color::RESET << "\n";
+            logPlay(card->getName());
+            card->apply(player, enemy);// –ø–µ—Ä–µ—Ä–∞–±–æ—Ç–∞—Ç—å –¥–ª—è BUFF
+            currentMana -= player.getEffectiveCardCost(*card);;
+            player.setMana(currentMana);
+            hand.erase(hand.begin() + indx);
+
+            std::cout << Color::DARK_GRAY << "-------------------------" << Color::RESET << "\n";
+            printPlayLog();
+
+        }
+        //–ü—Ä–æ–≤–µ—Ä–∫–∞ –Ω–∞ –ø—É—Å—Ç–æ—Ç—É –∫–æ–ª–æ–¥—ã
+        else if (cmd == "r") {
+            if (Deck.empty()) {
+                std::cout << Color::RED << "Deck is empty!" << Color::RESET << "\n";
+            }
+            else {
+                player.drawCard();
+                std::cout << Color::BLUE << "Player draws a card." << Color::RESET << "\n";
+            }
+        }
+
+        else if (cmd == "a") {
+            int dmg = 2;
+            enemy.getAttacked(dmg);
+            std::cout << Color::RED << "Base attack deals: " << Color::RESET << dmg << Color::RED << " damage\n" << Color::RESET;
+            logPlay(std::string("Basic attack: ") + std::to_string(dmg) + " dmg");
+
+            std::cout << Color::DARK_GRAY << "-------------------------" << Color::RESET << "\n";
+            printPlayLog();
+
+            break;
+        }
+
+        else if (cmd == "e") {
+            break;
+        }
+        else {
+            std::cout << Color::RED << "Wrong command." << Color::RESET << "\n";
+        }
+        std::cout << "\n";
+    }
 }
+
 void Game::autoPlayerTurn() {
-    std::cout << "[AUTO] Player turn...\n";
+    std::cout << Color::CYAN << "[AUTO] Player turn..." << Color::RESET << "\n";
 
     int currentMana = player.getMana();
     auto& hand = player.getHand();
@@ -107,11 +143,25 @@ void Game::autoPlayerTurn() {
     int bestIndex = -1;
     int bestCost = -1;
 
-    // Ì‡ÈÚË ÎÛ˜¯Û˛ Í‡ÚÛ ‚ ÛÍÂ
+    // –∏—â–µ–º —Å–∞–º—É—é –¥–æ—Ä–æ–≥—É—é –∫–∞—Ä—Ç—É –≤ —Ä—É–∫–µ, –∫–æ—Ç–æ—Ä—É—é –º–æ–∂–µ–º —Ä–∞–∑—ã–≥—Ä–∞—Ç—å
     for (int i = 0; i < hand.size(); ++i) {
         auto& c = hand[i];
-        if (!c) continue;
-        int cost = c->getManaCost();
+
+        //–ü—Ä–æ–≤–µ—Ä–∫–∞ –Ω–∞ –Ω–µ —Ç—É –∫–∞—Ä—Ç—É
+        if (!c) {
+            std::cout << Color::YELLOW << "[AUTO] Warning: Null card in hand at index " << i << Color::RESET << "\n";
+            continue;
+        };
+
+        int cost = player.getEffectiveCardCost(*c);;
+
+        //–ü—Ä–æ–≤–µ—Ä–∫–∞ –Ω–∞ -–∫–æ—Å—Ç
+        if (cost < 0) {
+            std::cout << Color::YELLOW << "[AUTO] Warning: Card \"" << c->getName()
+                << "\" has negative cost (" << cost << "), treating as 0" << Color::RESET << "\n";
+            cost = 0;
+        }
+
         if (cost <= currentMana && cost > bestCost) {
             bestCost = cost;
             bestIndex = i;
@@ -119,25 +169,59 @@ void Game::autoPlayerTurn() {
     }
     play_log.clear();
 
+
     if (bestIndex != -1) {
         auto card = hand[bestIndex];
-        std::cout << "[AUTO] Player uses card: " << card->getName() << "\n";
+
+        //–ü—Ä–æ–≤–µ—Ä–∫–∞ —Å—É—â–µ—Å—Ç–≤–æ–≤–∞–Ω–∏–µ –∫–∞—Ä—Ç—ã
+        if (!card) {
+            std::cout << Color::RED << "[AUTO] ERROR: Selected card is null!" << Color::RESET << "\n";
+        }
+        else {
+            std::cout << Color::GREEN << "[AUTO] Player uses card: " << card->getName() << Color::RESET << "\n";
+        }
+
+
         logPlay(card->getName());
         card->apply(player, enemy);
-        player.setMana(currentMana - card->getManaCost());
-        hand.erase(hand.begin() + bestIndex);
-        std::cout << "-------------------------\n";
+
+        player.setMana(currentMana - player.getEffectiveCardCost(*card));
+
+        //–ü—Ä–æ–≤–µ—Ä–∫–∞ –Ω–∞ –≤—ã—Ö–æ–¥ –∑–∞ –≥—Ä–∞–Ω–∏—Ü—ã –∏–Ω–¥–µ–∫—Å–æ–≤
+        if (bestIndex >= 0 && bestIndex < hand.size()) {
+            hand.erase(hand.begin() + bestIndex);
+        }
+        else {
+            std::cout << Color::RED << "[AUTO] ERROR: Invalid card index for removal: "
+                << bestIndex << Color::RESET << "\n";
+        }
+
+        std::cout << Color::DARK_GRAY << "-------------------------" << Color::RESET << "\n";
         printPlayLog();
         return;
     }
 
+
     int dmg = 2;
-    enemy.getAttacked(dmg);
-    std::cout << "[AUTO] Player attacks for " << dmg << " damage\n";
-    logPlay(std::string("Basic attack: ") + std::to_string(dmg) + " dmg");
+    switch (rand() % 2 + 1) {
+    case 1: {
+        enemy.getAttacked(dmg);
 
-    std::cout << "-------------------------\n";
-    printPlayLog();
-    std::cout << "\n\n\n";
+        std::cout << Color::RED << "[AUTO] Player attacks for " << Color::RESET << dmg << Color::RED << " damage\n" << Color::RESET;
 
+        logPlay(std::string("Basic attack: ") + std::to_string(dmg) + " dmg");
+        break;
+    }
+    case 2: {
+        player.drawCard();
+
+        logPlay(std::string("PLayer drow card"));
+        std::cout << Color::BLUE << "[AUTO] Player draws a card\n" << Color::RESET;
+        break;
+    }
+          std::cout << Color::DARK_GRAY << "-------------------------" << Color::RESET << "\n";
+          printPlayLog();
+          std::cout << "\n\n\n";
+
+    }
 }

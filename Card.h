@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 #include <iostream>
-
-class Character;
+#include "Colors.h"
+#include "Character.h"
 
 enum class CardType {
 	Attack,
@@ -16,18 +16,22 @@ enum class StatusType {
 	Bleed,
 	Weak,
 	Vulnerable,
-	Fragile
+	Fragile,
+
+	Strength,
+	Regeneration,
+	Haste,
+	Dexterity
 };
 
 
-//абстрактый класс карты
 class Card
 {
 protected: 
-	std::string name;
-	std::string effect_d;
-	int mana_cost;
-	CardType type;
+	std::string name; //1-Р№
+	std::string effect_d; //2-Р№
+	int mana_cost; //3-q
+	CardType type; //4-Р№
 	Card(std::string n, std::string e_d, int m_c, CardType t) : name(n), effect_d(e_d), mana_cost(m_c), type(t) {}
 
 public:
@@ -35,6 +39,9 @@ public:
 	virtual ~Card() = default;
 	virtual void apply(Character& self, Character& target) = 0;
 	virtual void printCard() = 0;
+	virtual void printShort() const {
+		std::cout << effect_d;
+	}
 
 	const std::string& getName() const { return name; }
 	const std::string& getEffectDescription() const { return effect_d; }
@@ -43,13 +50,13 @@ public:
 };
 
 
-// наследники класса карты
+
 class Attack_card : public Card {
 	int dmg;
 public:
-	//вызов конструктора с параметром type_value для урона базового класса Card
+	
 	Attack_card(std::string n, std::string e_d, int m_c, int type_value) : Card(n, e_d, m_c, CardType::Attack), dmg(type_value) {}
-	void apply(Character& self, Character& target) override; //переопределение виртуальной функции(применение эффекта карты)
+	void apply(Character& self, Character& target) override; 
 	void printCard() override;
 };
 
@@ -72,25 +79,113 @@ public:
 };
 
 
+
+
 class Buff_card : public Card {
-	// Buff specific attributes
+protected:
+	StatusType statusType;
+	int value;
+	int duration;
 public:
-	Buff_card(std::string n, std::string e_d, int m_c) : Card(n, e_d, m_c, CardType::Buff) {}
-	void apply(Character& self, Character& target) override;
-	void printCard() override;
+	Buff_card(std::string n, std::string e_d, int m_c, StatusType st, int val, int dur) :
+		//CardType::Debuff РЅРµ СЏРІР»СЏРµС‚СЃСЏ РїР°СЂР°РјРµС‚СЂРѕРј РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР°, РїРѕСЌС‚РѕРјСѓ РїРµСЂРµРґР°РµРј РµРіРѕ СЏРІРЅРѕ, РёР±Рѕ РІ enum class С„РёРєСЃРёСЂСѓРµС‚СЃСЏ РєРѕРЅРєСЂРµС‚РЅС‹Р№ С‚РёРї РєР°СЂС‚С‹
+		Card(n, e_d, m_c, CardType::Buff), //РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ Р±Р°Р·РѕРІРѕРіРѕ РєР»Р°СЃСЃР° РЅР° РїРµСЂРІС‹Рµ 3 РїР°СЂР°РјРµС‚СЂР°
+		statusType(st), // 4-Р№
+		value(val), // 5-Р№
+		duration(dur) {
+	}
+	void apply(Character& self, Character& target) override = 0;
+	void printCard() override = 0;
 };
 
 
-class Debuff_card : public Card {
-	StatusType statusType;
-	int value; // сила статуса (например, урон от яда, кровотечения)
-	int duration; // продолжительность эффекта (для статусов типа Weak, Vulnerable, Fragile)
+class Strength_card : public Buff_card {
 public:
-	Debuff_card(std::string n, std::string e_d, int m_c,
-		StatusType st, int val, int dur)
-		: Card(n, e_d, m_c, CardType::Debuff),
-		statusType(st), value(val), duration(dur) {
-	}
-	void apply(Character& self, Character& target) override;//вывод эффекта дебаффа
+	Strength_card(std::string n, std::string e_d, int m_c, int val, int dur) : Buff_card(n,e_d,m_c, StatusType::Strength, val,dur){}
+
+	void apply(Character& self, Character& target) override;
+	void printCard()override;
+};
+
+class Regeneration_card : public Buff_card {
+public:
+	Regeneration_card(std::string n, std::string e_d, int m_c, int val, int dur) : Buff_card(n, e_d, m_c, StatusType::Regeneration, val, dur) {}
+
+	void apply(Character& self, Character& target) override;
+	void printCard()override;
+};
+
+class Haste_card : public Buff_card {
+public:
+	Haste_card(std::string n, std::string e_d, int m_c, int val, int dur) : Buff_card(n, e_d, m_c, StatusType::Haste, val, dur) {}
+
+	void apply(Character& self, Character& target) override;
+	void printCard()override;
+};
+
+class Dexterity_card : public Buff_card {
+public:
+	Dexterity_card(std::string n, std::string e_d, int m_c, int val, int dur) : Buff_card(n, e_d, m_c, StatusType::Dexterity,val,dur) {}
+
+	void apply(Character& self, Character& target) override;
+	void printCard()override;
+};
+
+
+
+//Р§РРЎРўРћ Р’РР РўРЈРђР›Р¬РќР«Р™ РљР›РђРЎРЎ, Р•Р“Рћ РќР•Р›Р¬Р—РЇ РЎРћР—Р”РђРўР¬ РЎ РџРћРњРћР©Р¬Р® MAKE_SHARED
+class Debuff_card : public Card {
+protected:
+	StatusType statusType;
+	int value; // Р·РЅР°С‡РµРЅРёРµ СЌС„С„РµРєС‚Р°   5-Р№
+	int duration; // РґР»РёС‚РµР»СЊРЅРѕСЃС‚СЊ СЌС„С„РµРєС‚Р°   6-Р№
+
+public:
+	Debuff_card(std::string n, std::string e_d, int m_c, StatusType st, int val, int dur) :
+		//CardType::Debuff РЅРµ СЏРІР»СЏРµС‚СЃСЏ РїР°СЂР°РјРµС‚СЂРѕРј РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР°, РїРѕСЌС‚РѕРјСѓ РїРµСЂРµРґР°РµРј РµРіРѕ СЏРІРЅРѕ, РёР±Рѕ РІ enum class С„РёРєСЃРёСЂСѓРµС‚СЃСЏ РєРѕРЅРєСЂРµС‚РЅС‹Р№ С‚РёРї РєР°СЂС‚С‹
+		Card(n, e_d, m_c, CardType::Debuff), //РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ Р±Р°Р·РѕРІРѕРіРѕ РєР»Р°СЃСЃР° РЅР° РїРµСЂРІС‹Рµ 3 РїР°СЂР°РјРµС‚СЂР°
+		statusType(st), // 4-Р№
+		value(val), // 5-Р№
+		duration(dur) {} //6-Р№
+
+	virtual void apply(Character& self, Character& target) override = 0;
+	virtual void printCard() override = 0;
+};
+
+
+//РќРђРЎР›Р•Р”РќРРљР DEBUFF
+class Poison_card : public Debuff_card {
+public:
+	Poison_card(std::string n, std::string e_d, int m_c, int val, int dur) : Debuff_card(n, e_d, m_c,StatusType::Poison, val,dur) {}
+
+	void apply(Character& self, Character& target) override;
+	void printCard()override;
+};
+class Bleed_card: public Debuff_card{
+public:
+	Bleed_card(std::string n, std::string e_d, int m_c, int val, int dur) : Debuff_card(n, e_d, m_c, StatusType::Bleed, val, dur) {}
+
+	void apply(Character& self, Character& target) override;
+	void printCard() override;
+};
+class Weak_card : public Debuff_card {
+public:
+	Weak_card(std::string n, std::string e_d, int m_c, int val, int dur) : Debuff_card(n, e_d, m_c, StatusType::Weak, val, dur) {}
+	
+	void apply(Character& self, Character& target) override;
+	void printCard() override;
+};
+class Vulnerable_card : public Debuff_card {
+public:
+	Vulnerable_card(std::string n, std::string e_d, int m_c, int val, int dur) : Debuff_card(n, e_d, m_c, StatusType::Vulnerable, val, dur) {}
+
+	void apply(Character& self, Character& target) override;
+	void printCard() override;
+};
+class Fragile_card : public Debuff_card {
+public:
+	Fragile_card(std::string n, std::string e_d, int m_c, int val, int dur) : Debuff_card(n, e_d, m_c, StatusType::Fragile, val, dur) {}
+
+	void apply(Character& self, Character& target) override;
 	void printCard() override;
 };

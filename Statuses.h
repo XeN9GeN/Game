@@ -1,24 +1,38 @@
 #pragma once
 #include <iostream>
 #include <string>
-
+#include "Colors.h"
 
 struct StatusesType {
-	int poison = 0;     // наносит урон в начале хода, обходя броню
+	int poison = 0;     // СѓСЂРѕРЅ СЏРґРѕРј Р·Р° С…РѕРґ (РЅРµ Р·Р°РІРёСЃРёС‚ РѕС‚ Р±СЂРѕРЅРё)
 	int poison_duration = 0;
 
-	int bleed = 0;      // наносит урон в начале хода, учитывая броню
+	int bleed = 0;      // СѓСЂРѕРЅ РєСЂРѕРІРѕС‚РµС‡РµРЅРёРµРј Р·Р° С…РѕРґ (СЃРЅР°С‡Р°Р»Р° Р±СЊС‘С‚ РїРѕ Р±СЂРѕРЅРµ)
 	int bleed_duration = 0;
 
-	//их значения не важны, важна длительность(1 есть, 0 нет)
-	int weak = 0;       // уменьшает урон атакующего на 25%
+	// 1 вЂ” СЌС„С„РµРєС‚ Р°РєС‚РёРІРµРЅ, 0 вЂ” РѕС‚РєР»СЋС‡РµРЅ
+	int weak = 0;       // СЃРЅРёР¶Р°РµС‚ РёСЃС…РѕРґСЏС‰РёР№ СѓСЂРѕРЅ РїРµСЂСЃРѕРЅР°Р¶Р° РЅР° 25%
 	int weak_duration = 0;
 
-	int vulnerable = 0; // увеличивает входящий урон на 50%
+	int vulnerable = 0; // РїРѕРІС‹С€Р°РµС‚ РІС…РѕРґСЏС‰РёР№ СѓСЂРѕРЅ РїРѕ РїРµСЂСЃРѕРЅР°Р¶Сѓ РЅР° 50%
 	int vulnerable_duration = 0;
 
-	int fragile = 0;    // уменьшает эффективность брони (напр. броня дает вдвое меньше защиты)
+	int fragile = 0;    // Р±СЂРѕРЅСЏ СЂР°Р±РѕС‚Р°РµС‚ РІРїРѕР»РѕРІРёРЅСѓ СЌС„С„РµРєС‚РёРІРЅРѕСЃС‚Рё
 	int fragile_duration = 0;
+
+
+
+	int strength = 0;          // +50% СѓСЂРѕРЅР°
+	int strength_duration = 0;
+
+	int regeneration = 0;      // heal per turn
+	int regeneration_duration = 0;
+
+	int dexterity = 0;         // С€Р°РЅСЃ СѓРєР»РѕРЅРµРЅРёСЏ (%)
+	int dexterity_duration = 0;
+
+	int haste = 0;             // -2 mana cost
+	int haste_duration = 0;
 };
 
 
@@ -28,12 +42,29 @@ private:
 
 public:
 
-	//гетеры для получения значений статусов
 	int getPoison() const { return status.poison; }
 	int getBleed() const { return status.bleed; }
 	int getWeak() const { return status.weak; }
 	int getVulnerable() const { return status.vulnerable; }
 	int getFragile() const { return status.fragile; }
+	
+	int getPoisonDuration() const { return status.poison_duration; }
+	int getBleedDuration() const { return status.bleed_duration; }
+	int getWeakDuration() const { return status.weak_duration; }
+	int getVulnerableDuration() const { return status.vulnerable_duration; }
+	int getFragileDuration() const { return status.fragile_duration; }
+
+
+	int getStrength() const { return status.strength; }
+	int getRegeneration() const { return status.regeneration; }
+	int getDexterity() const { return status.dexterity; }
+	int getHaste() const { return status.haste; }
+
+	int getStrengthDuration() const { return status.strength_duration; }
+	int getRegenerationDuration() const { return status.regeneration_duration; }
+	int getDexterityDuration() const { return status.dexterity_duration; }
+	int getHasteDuration() const { return status.haste_duration; }
+
 
 
 	void addPoison(int dmg, int duration) {
@@ -49,7 +80,7 @@ public:
 	}
 	void addWeak(int duration) {
 		if (status.weak == 0)
-			status.weak = 1;//значение не важно, важна длительность
+			status.weak = 1; // РІРєР»СЋС‡Р°РµРј С„Р»Р°Рі, РµСЃР»Рё СЌС„С„РµРєС‚Р° РµС‰С‘ РЅРµ Р±С‹Р»Рѕ
 		status.weak_duration += duration;
 	}
 	void addVulnerable(int duration) {
@@ -64,36 +95,92 @@ public:
 	}
 
 
+
+
+	void addStrength(int duration) {
+		status.strength = 1;
+		status.strength_duration += duration;
+	}
+
+	void addRegeneration(int heal, int duration) {
+		status.regeneration = heal;
+		status.regeneration_duration += duration;
+	}
+
+	void addDexterity(int duration) {
+		status.dexterity = 20; // %
+		status.dexterity_duration += duration;
+	}
+
+	void addHaste(int duration) {
+		status.haste = 1;
+		status.haste_duration += duration;
+	}
+
+
+
+
 	void showStatuses() const {
-		std::cout << "Statuses:\n";
+		std::cout << Color::WHITE;
 
 		if (status.poison_duration > 0)
-			std::cout << "- Poison: " << status.poison << " dmg/turn ("
-			<< status.poison_duration << " turns)\n";
+			std::cout << Color::PURPLE << "- Poison: " << Color::GREEN
+			<< status.poison << Color::RESET << " dmg/turn " << Color::DARK_GRAY
+			<< "(" << status.poison_duration << " turns)" << Color::RESET << "\n";
 
 		if (status.bleed_duration > 0)
-			std::cout << "- Bleed: " << status.bleed << " dmg/turn ("
-			<< status.bleed_duration << " turns)\n";
+			std::cout << Color::RED << "- Bleed: " << Color::GREEN
+			<< status.bleed << Color::RESET << " dmg/turn " << Color::DARK_GRAY
+			<< "(" << status.bleed_duration << " turns)" << Color::RESET << "\n";
 
 		if (status.weak_duration > 0)
-			std::cout << "- Weak (" << status.weak_duration
-			<< " turns, 25% dmg reduction)\n";
+			std::cout << Color::YELLOW << "- Weak " << Color::DARK_GRAY
+			<< "(" << status.weak_duration << " turns, "
+			<< Color::YELLOW << "25% dmg reduction" << Color::DARK_GRAY << ")" << Color::RESET << "\n";
 
 		if (status.vulnerable_duration > 0)
-			std::cout << "- Vulnerable (" << status.vulnerable_duration
-			<< " turns, +50% incoming dmg)\n";
+			std::cout << Color::RED << "- Vulnerable " << Color::DARK_GRAY
+			<< "(" << status.vulnerable_duration << " turns, "
+			<< Color::RED << "+50% incoming dmg" << Color::DARK_GRAY << ")" << Color::RESET << "\n";
 
 		if (status.fragile_duration > 0)
-			std::cout << "- Fragile (" << status.fragile_duration
-			<< " turns, armor halved)\n";
+			std::cout << Color::YELLOW << "- Fragile " << Color::DARK_GRAY
+			<< "(" << status.fragile_duration << " turns, "
+			<< Color::YELLOW << "armor halved" << Color::DARK_GRAY << ")" << Color::RESET << "\n";
+
+
+
+		if(status.strength_duration > 0)
+			std::cout << Color::GREEN << "- Strength " << Color::DARK_GRAY
+			<< "(" << status.strength_duration << " turns, "
+			<< Color::GREEN << "+50% dmg" << Color::DARK_GRAY << ")" << Color::RESET << "\n";
+
+		if(status.regeneration_duration > 0)
+			std::cout << Color::GREEN << "- Regeneration: " << Color::GREEN
+			<< status.regeneration << Color::RESET << " heal/turn " << Color::DARK_GRAY
+			<< "(" << status.regeneration_duration << " turns)" << Color::RESET << "\n";
+
+		if(status.dexterity_duration > 0)
+			std::cout << Color::CYAN << "- Dexterity " << Color::DARK_GRAY
+			<< "(" << status.dexterity_duration << " turns, "
+			<< Color::CYAN << status.dexterity << "% evasion" << Color::DARK_GRAY << ")" << Color::RESET << "\n";
+
+		if (status.haste_duration > 0)
+			std::cout << Color::BLUE << "- Haste " << Color::DARK_GRAY
+			<< "(" << status.haste_duration << " turns, "
+			<< Color::BLUE << "-2 mana cost" << Color::DARK_GRAY << ")" << Color::RESET << "\n";
+
+
 
 		if (status.poison_duration == 0 && status.bleed_duration == 0 &&
 			status.weak_duration == 0 && status.vulnerable_duration == 0 &&
-			status.fragile_duration == 0)
+			status.fragile_duration == 0 && status.strength_duration==0 && status.regeneration_duration
+			&& status.haste_duration==0 && status.dexterity_duration==0)
 		{
-			std::cout << "No statuses.\n";
+			std::cout << Color::DARK_GRAY << "No statuses." << Color::RESET << "\n";
 		}
 	}
+
 	void updateStatuses() {
 		if (status.poison_duration > 0) {
 			status.poison_duration--;
@@ -125,5 +212,31 @@ public:
 				status.fragile = 0;
 		}
 
+
+
+
+		if (status.strength_duration > 0) {
+			status.strength_duration--;
+			if (status.strength_duration == 0)
+				status.strength = 0;
+		}
+
+		if (status.regeneration_duration > 0) {
+			status.regeneration_duration--;
+			if (status.regeneration_duration == 0)
+				status.regeneration = 0;
+		}
+
+		if (status.dexterity_duration > 0) {
+			status.dexterity_duration--;
+			if (status.dexterity_duration == 0)
+				status.dexterity = 0;
+		}
+
+		if (status.haste_duration > 0) {
+			status.haste_duration--;
+			if (status.haste_duration == 0)
+				status.haste = 0;
+		}
 	}
 };

@@ -1,35 +1,66 @@
 #include "Character.h"
-#include <iostream>   // ��� cout
+#include <iostream>   // ��� cout
 #include <random>  
-
+#include "Card.h"
 static std::mt19937 make_rng() {
     static std::random_device rd;
     return std::mt19937(static_cast<unsigned>(std::time(nullptr)) ^ rd());
 }
 
 
-void Character::applyPhysicalDamageToArmor(int dmg) {// �������� �� ������� ������� ����
+
+int Character::getEffectiveCardCost(const Card& card) const {
+    int cost = card.getManaCost();
+
+    if (status.getHasteDuration() > 0) {
+        cost -= 2;
+    }
+
+    return std::max(0, cost);
+}
+
+
+void Character::applyPhysicalDamageToArmor(int dmg) { // снимает урон сначала с брони
     armor -= dmg;
     if (armor < 0) armor = 0;
 } 
 void Character::getAttacked(int dmg) {
+    // Проверка на неотрицательный урон
+    if (dmg < 0) {
+        std::cout << Color::YELLOW << "Warning: Negative damage value!" << Color::RESET << "\n";
+        dmg = 0;
+    }
+
 	if (hp <= 0) return;
 
 	int incoming_dmg = dmg;
 
-	// Apply Vulnerable status    more dmg
+    if (status.getDexterityDuration() > 0) {
+		int dodge_chance = status.getDexterity(); // Получаем шанс уклонения из статуса
+		int roll = rand() % 100; // Генерируем случайное число от 0 до 99
+        if (roll < dodge_chance) {
+            std::cout << Color::CYAN << "Dodged!" << Color::RESET << "\n";
+            return;
+        }
+    }
+	//Apply Strength status: увеличивает наносимый урон атакующего на 50%
+    if (status.getStrength() > 0) {
+        incoming_dmg = static_cast<int>(incoming_dmg * 1.5);
+    }
+
+	// Apply Vulnerable status: увеличивает входящий урон
     if(status.getVulnerable() > 0) {
         incoming_dmg = static_cast<int>(incoming_dmg * 1.5);
 	}
     
-	// Apply Weak status    defShred
+	// Apply Weak status: ослабляет эффективность брони цели
 	int effective_armor = armor;
     if(status.getWeak() > 0) {
         effective_armor /= 2;
     }
      
-	//Damage calculation after armor
-	int dmg_after_armor = incoming_dmg - effective_armor;// ��� ������� ������ ������ �� ��
+	// Damage calculation after armor
+	int dmg_after_armor = incoming_dmg - effective_armor; // сколько урона пройдет по здоровью
     if(dmg_after_armor < 0) {
         dmg_after_armor = 0;
 	}
@@ -41,7 +72,7 @@ void Character::getAttacked(int dmg) {
 }
 
 
-void Character::startTurn() {
+void Character::takesPeriodDmgAtStartTurn() {
 
     if (status.getPoison() > 0) {
         hp -= status.getPoison();
@@ -66,6 +97,13 @@ void Character::startTurn() {
 }
 
 void Character::drawCard() {
+    // Проверка: не превышен ли лимит карт в руке
+    const int MAX_HAND_SIZE = 10;
+    if (player_hand.size() >= MAX_HAND_SIZE) {
+        std::cout << Color::YELLOW << "Hand is full! Cannot draw more cards." << Color::RESET << "\n";
+        return;
+    }
+
     if (player_deck.empty()) return;
     static std::mt19937 rng(std::random_device{}());
     std::uniform_int_distribution<size_t> dist(0, player_deck.size() - 1);

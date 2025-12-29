@@ -1,0 +1,11 @@
+# Enemy Deck
+# Format: Type|Name|Description|Cost|Value|Duration (для Debuff)
+Attack|Strike|Basic attack|2|4
+Defense|Block|Increase armor|2|3
+Heal|First Aid|Restore health|3|5
+Debuff|Deadly Venom|Applies poison|3|Poison|5|1
+Debuff|Razor Cut|Causes bleeding|2|Bleed|3|2
+Debuff|Crippling Fear|Weakens enemy|1|Weak|1|3
+Attack|Strike|Basic attack|2|4
+Defense|Block|Increase armor|2|3
+Heal|First Aid|Restore health|3|5

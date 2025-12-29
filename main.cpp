@@ -1,45 +1,56 @@
 ﻿#include <iostream>
+#include <cstdlib> 
 #include <memory>
 #include <vector>
 #include <thread>
 #include <chrono>
 #include <random>
 #include <ctime>
+#include <string>
+#include <algorithm>
 
 #include "Character.h"
 #include "Enemy.h"
 #include "Card.h"
 #include "Game.h"
+#include "Face.cpp"
+#include "Display.h"
+#include <windows.h>
+#include "DeckLoader.h"
+
+void clearScreen() {
+#ifdef _WIN32
+    system("cls");
+#endif
+}
+
 
 using namespace std;
 
-
 int main() {
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+    CONSOLE_FONT_INFOEX fontInfo;
+    fontInfo.cbSize = sizeof(fontInfo);
+    GetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &fontInfo);
+    wcscpy_s(fontInfo.FaceName, L"Consolas");
+    SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &fontInfo);
+    std::locale::global(std::locale("en_US.UTF-8"));
+
+
+
 
     Character player(30, 5, 10); // HP, Armor, Mana
-    Enemy enemy("Armored Goblin", 20, 10, 10);
+    Enemy enemy("Bread", 15, 10, 10);
+    
     Game game(player, enemy);
-
-    enemy.addCardToDeck(make_shared<Attack_card>("Slash", "Simple strike", 2, 3));
-    enemy.addCardToDeck(make_shared<Attack_card>("Heavy Blow", "Hard hit", 4, 5));
-    enemy.addCardToDeck(make_shared<Defense_card>("Shield", "Block", 2, 2));
-    enemy.addCardToDeck(make_shared<Heal_card>("Bandage", "Heal small", 3, 3));
-    enemy.addCardToDeck(make_shared<Debuff_card>("Deadly Venom", "Applies poison", 3, StatusType::Poison, 5, 1));
-    enemy.addCardToDeck(make_shared<Debuff_card>("Razor Cut", "Causes bleeding", 2, StatusType::Bleed, 3, 2));
-    enemy.addCardToDeck(make_shared<Debuff_card>("Crippling Fear", "Weakens enemy", 1, StatusType::Weak, 1, 3));
-    enemy.addCardToDeck(make_shared<Debuff_card>("Expose Armor", "Makes the enemy prone to incoming damage.", 2, StatusType::Vulnerable, 1, 2));
-    enemy.addCardToDeck(make_shared<Debuff_card>("Shatter Shield", "Reduces enemy armor effectiveness.", 2, StatusType::Fragile, 1, 2));
-
-
-    player.addCardToDeck(make_shared<Attack_card>("Strike", "Basic attack", 2, 4));
-    player.addCardToDeck(make_shared<Defense_card>("Block", "Increase armor", 2, 3));
-    player.addCardToDeck(make_shared<Heal_card>("First Aid", "Restore health", 3, 5));
-    player.addCardToDeck(make_shared<Debuff_card>("Deadly Venom", "Applies poison", 3, StatusType::Poison, 5, 1));//3 -cost 5-dmg 1-turn
-    player.addCardToDeck(make_shared<Debuff_card>("Razor Cut", "Causes bleeding", 2, StatusType::Bleed, 3, 2));
-    player.addCardToDeck(make_shared<Debuff_card>("Crippling Fear", "Weakens enemy", 1, StatusType::Weak, 1,3));
-    player.addCardToDeck(make_shared<Debuff_card>("Expose Armor",  "Makes the enemy prone to incoming damage.", 2, StatusType::Vulnerable, 1, 2));
-	player.addCardToDeck(make_shared<Debuff_card>("Shatter Shield", "Reduces enemy armor effectiveness.", 2, StatusType::Fragile, 1, 2));
-
+    
+    //Колоду можни 
+    //Какие ptr'ы бывают
+    //Валидация ошибок
+    //Интерфейс
+    DeckLoader::loadPlayerDeck(player, "player_deck.txt");
+    DeckLoader::loadPlayerDeck(enemy, "enemy_deck.txt");
 
     player.drawCard();
     player.drawCard();
@@ -73,15 +84,24 @@ int main() {
 
     int turn = 1;
     while (player.getHealth() > 0 && enemy.getHealth() > 0) {
+        clearScreen();
         std::cout << "\n\n\n\n";
-        std::cout << "\n--- Turn " << turn << " ---\n";
+        Display::printSimpleBattle(player, enemy, turn);
+        
 
-        player.printCharacterStatus(player, "Player");
-		enemy.printCharacterStatus(enemy, "Enemy");
+        if(player.getStatuses().getRegeneration() > 0) {
+            int heal_amount = player.getStatuses().getRegeneration();
+            player.setHp(player.getHealth() + heal_amount);
+            std::cout << Color::GREEN << "Player regenerates " << heal_amount << " health due to Regeneration status." << Color::RESET << "\n";
+		}//Хил в начале хода от регенерации
 
+        player.getStatuses().updateStatuses();
+        enemy.getStatuses().updateStatuses();
+        
         player.setMana(turn);
         enemy.setMana(turn);
-
+       
+            
         if (auto_mode) {
             game.autoPlayerTurn();      // игрок ходит автоматически
         }
@@ -89,13 +109,13 @@ int main() {
             game.PlayerTurn();          // игрок вводит команды сам
         }
         enemy.autoEnemyTurn(player);    // враг ВСЕГДА ходит автоматически
+        enemy.drawCard();
+        enemy.drawCard();
 
-		player.getStatuses().updateStatuses();
-		enemy.getStatuses().updateStatuses();
-
-        
-        player.printCharacterStatus(player, "Player");
-        enemy.printCharacterStatus(enemy, "Enemy");
+        // Пауза между ходами
+        std::cout << "\nНажмите Enter для продолжения...";
+        std::cin.ignore();
+        std::cin.get();
         turn++;
     }
 }
